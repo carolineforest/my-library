@@ -161,7 +161,8 @@ export async function listPeopleNames(): Promise<string[]> {
 /** All tag names: ones I created plus any used on books. */
 export async function listTags(): Promise<string[]> {
   const saved = (await db.tags.toArray()).map((t) => t.name);
-  const used = (await db.books.orderBy('tags').uniqueKeys()) as string[];
+  // Read the books and collect tags (simpler than an index scan, which older Safari mishandles).
+  const used = (await db.books.toArray()).flatMap((b) => b.tags ?? []);
   return uniqueSorted([...saved, ...used]);
 }
 
@@ -198,7 +199,7 @@ export async function deleteTag(name: string): Promise<void> {
 }
 
 export async function listLocations(): Promise<string[]> {
-  const keys = (await db.books.orderBy('location').uniqueKeys()) as string[];
+  const keys = (await db.books.toArray()).map((b) => b.location ?? '');
   return uniqueSorted(keys.filter(Boolean));
 }
 

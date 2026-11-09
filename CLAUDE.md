@@ -113,6 +113,11 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - `index.html` has a plain-JS safety net: if `window.__appStarted` (set in App's first effect) isn't true
   after 10 s, it shows "My Library couldn't start" with the error + device info, a Try Again button, and
   Reset App (unregisters the service worker and clears code caches, keeps IndexedDB data and covers).
+  It also watches for the page going blank after start.
+- `components/ErrorBoundary.tsx` wraps the app and each screen: a crash shows the error + device info
+  instead of a blank page. `App.tsx` opens the database first; failure or >8 s shows `app/StorageProblem.tsx`.
+- Tag/location lists are collected from `books.toArray()` (no multiEntry `uniqueKeys()` scans).
+- Debugging on the owner's iPhone: ask for a screenshot of these error screens (they include the iOS version).
 
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.

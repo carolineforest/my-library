@@ -58,6 +58,18 @@
           errors.push('Promise: ' + (e.reason && (e.reason.message || e.reason)));
         });
         setTimeout(function () { show('The app did not finish starting within 10 seconds.'); }, 10000);
+        // Also catch the app disappearing after it started (a crash that blanks the page).
+        var checks = 0;
+        var watcher = setInterval(function () {
+          checks++;
+          var root = document.getElementById('root');
+          if (window.__appStarted && root && root.children.length === 0) {
+            window.__appStarted = false;
+            show('The app started, then the screen went blank.');
+            clearInterval(watcher);
+          }
+          if (checks > 30) clearInterval(watcher);
+        }, 1000);
         document.getElementById('boot-retry').onclick = function () { location.reload(); };
         // Reset = forget the saved copy of the app's code (NOT your books), then reload.
         document.getElementById('boot-reset').onclick = function () {

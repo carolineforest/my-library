@@ -1,11 +1,13 @@
 // The app shell: picks which screen to show from the address, plus the tab bar.
 // To add a screen: create it under src/features/, then add a case below.
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRoute } from './router';
 import { TabBar, type TabId } from './TabBar';
 import { UpdatePrompt } from './UpdatePrompt';
 import { ToastHost } from '../components/Toast';
-import { requestPersistentStorage } from '../data/db';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { db, requestPersistentStorage } from '../data/db';
+import { StorageProblem } from './StorageProblem';
 import { LibraryScreen } from '../features/library/LibraryScreen';
 import { BookDetailScreen } from '../features/book/BookDetailScreen';
 import { EditBookScreen } from '../features/book/EditBookScreen';
@@ -23,14 +25,26 @@ export function App() {
   const route = useRoute();
   const [section, id] = route.parts;
 
+  // Open the on-phone database first, so a storage problem shows a clear message
+  // instead of an empty screen that never finishes loading.
+  const [dbState, setDbState] = useState<'opening' | 'ready' | 'slow' | Error>('opening');
   useEffect(() => {
-    // Tell the safety net in index.html that the first screen appeared.
     (window as unknown as { __appStarted: boolean }).__appStarted = true;
+    const slow = setTimeout(() => setDbState((s) => (s === 'opening' ? 'slow' : s)), 8000);
+    db.open()
+      .then(() => setDbState('ready'))
+      .catch((e: Error) => setDbState(e))
+      .finally(() => clearTimeout(slow));
     requestPersistentStorage();
+    return () => clearTimeout(slow);
   }, []);
 
   let screen;
-  switch (section) {
+  if (dbState instanceof Error || dbState === 'slow') {
+    screen = <StorageProblem error={dbState instanceof Error ? dbState : undefined} />;
+  } else if (dbState === 'opening') {
+    screen = null;
+  } else switch (section) {
     case 'library':
       lastTab = 'library';
       screen = <LibraryScreen key={JSON.stringify(route.query)} params={route.query} />;
@@ -73,7 +87,10 @@ export function App() {
 
   return (
     <>
-      <main className="app-main">{screen}</main>
+      <main className="app-main">
+        {/* key: moving to another page clears a crash message */}
+        <ErrorBoundary key={route.parts.join('/')}>{screen}</ErrorBoundary>
+      </main>
       <TabBar active={lastTab} />
       <UpdatePrompt />
       <ToastHost />

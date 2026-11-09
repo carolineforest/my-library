@@ -1,6 +1,6 @@
 // A single book's page: big cover, details, and actions.
 import { useState } from 'react';
-import { useBook, useBookLoans } from '../../data/hooks';
+import { useBook, useBookLoans, useOwnedMatches } from '../../data/hooks';
 import { deleteBook } from '../../data/repository';
 import { Cover } from '../../components/Cover';
 import { Icon } from '../../components/Icon';
@@ -14,6 +14,8 @@ import { ChangeCoverSheet } from './ChangeCoverSheet';
 import { ReadingSection } from './ReadingSection';
 import { LendSheet, ReturnSheet } from '../loans/LendSheet';
 import { LoanHistory } from '../loans/LoanHistory';
+import { ToBuyActions } from '../toBuy/ToBuyActions';
+import { BoughtSheet } from '../toBuy/BoughtSheet';
 import { READING_STATUS_LABELS } from '../../data/models';
 import { StarsSmall } from '../../components/Stars';
 import './book.css';
@@ -23,8 +25,10 @@ export function BookDetailScreen({ id }: { id?: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [changingCover, setChangingCover] = useState(false);
   const [loanPanel, setLoanPanel] = useState(false);
+  const [justBought, setJustBought] = useState(false);
   const loans = useBookLoans(id);
   const activeLoan = loans?.find((l) => !l.returnedDate);
+  const ownedMatches = useOwnedMatches(book?.list === 'toBuy' ? book : null);
 
   if (book === undefined) return <div className="page" />;
   if (book === null)
@@ -65,6 +69,7 @@ export function BookDetailScreen({ id }: { id?: string }) {
           {book.authors.length > 0 && <p className="book-authors">{joinAuthors(book.authors)}</p>}
           <div className="row-wrap">
             {book.list === 'toBuy' && <span className="badge badge-accent">To Buy</span>}
+            {book.list === 'toBuy' && <span className="badge">{book.format}</span>}
             {book.list === 'owned' && book.status !== 'none' && (
               <span className="badge">{READING_STATUS_LABELS[book.status]}</span>
             )}
@@ -82,16 +87,30 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </p>
       )}
 
-      <div className="book-actions section">
-        {book.list === 'owned' && (
+      {ownedMatches.length > 0 && (
+        <p className="notice section" role="status">
+          <Icon name="info" />
+          <span>
+            <strong>You already own this.</strong>{' '}
+            <a href={href('/book/' + ownedMatches[0].id)}>
+              See your {ownedMatches[0].format.toLowerCase()} copy
+            </a>
+          </span>
+        </p>
+      )}
+
+      {book.list === 'toBuy' && <ToBuyActions book={book} onChangeCover={() => setChangingCover(true)} onBought={() => setJustBought(true)} />}
+
+      {book.list === 'owned' && (
+        <div className="book-actions section">
           <button type="button" className={`btn ${activeLoan ? 'btn-secondary' : ''}`} onClick={() => setLoanPanel(true)}>
             <Icon name="loan" /> {activeLoan ? 'Return to Shelf' : 'Loan'}
           </button>
-        )}
-        <button type="button" className="btn" onClick={() => setChangingCover(true)}>
-          <Icon name="image" /> Change Cover
-        </button>
-      </div>
+          <button type="button" className="btn" onClick={() => setChangingCover(true)}>
+            <Icon name="image" /> Change Cover
+          </button>
+        </div>
+      )}
 
       {book.list === 'owned' && (
         <section className="section card" aria-label="Location and shelves">
@@ -157,6 +176,7 @@ export function BookDetailScreen({ id }: { id?: string }) {
         ) : (
           <LendSheet book={book} onClose={() => setLoanPanel(false)} />
         ))}
+      {justBought && <BoughtSheet book={book} onClose={() => setJustBought(false)} />}
       {changingCover && <ChangeCoverSheet book={book} onClose={() => setChangingCover(false)} />}
       {confirmDelete && (
         <Sheet title="Delete this book?" onClose={() => setConfirmDelete(false)}>

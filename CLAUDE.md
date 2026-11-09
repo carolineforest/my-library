@@ -78,6 +78,16 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
   (`#/loans` current, `#/loans/people`), PersonScreen (`#/loans/person/<personKey>`), people.ts (grouping).
 - A book can only have one open loan (enforced in `repository.lendBook`).
 
+## To Buy & prices
+- To Buy books are `Book` records with `list: 'toBuy'` (same table). Default format Paperback.
+- Book page for To Buy shows `features/toBuy/ToBuyActions` (I Bought It, Compare Prices, Other Editions)
+  and a "You already own this" notice (`useOwnedMatches`).
+- "I Bought It" = `repository.markBought` (list → owned, status → Want to Read), then `BoughtSheet` asks location/tags.
+- Price links: `services/prices/storeLinks.ts` (Amazon, Bookshop.org, B&N, ThriftBooks, AbeBooks, BookFinder).
+- Live prices: `services/prices/PriceProvider.ts` interface + `noPriceProvider` placeholder. To enable later,
+  build a serverless function that holds the API key, write a provider that calls it, set `priceProvider`.
+  No scraping.
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.
@@ -92,6 +102,6 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - [x] Phase 2: search + barcode scan, covers, Change Cover
 - [x] Phase 3: reading tracking, shelves/tags, location, search/sort/filter
 - [x] Phase 4: loans, history, People
-- [ ] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It
+- [x] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It
 - [ ] Phase 6: Goodreads import
 - [ ] Phase 7: stats, backup/export, polish

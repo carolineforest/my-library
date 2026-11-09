@@ -59,3 +59,13 @@ export function useCoverImageUrl(coverId: string | undefined): string | undefine
   }, [blob]);
   return url;
 }
+
+/** Books in My Library that look like the same book (for "You already own this"). */
+export function useOwnedMatches(book: Book | null | undefined): Book[] {
+  return (
+    useLiveQuery(
+      async () => (book ? (await repo.findDuplicates(book, 'owned')).filter((b) => b.id !== book.id) : []),
+      [book?.id, book?.title, book?.isbn13],
+    ) ?? []
+  );
+}

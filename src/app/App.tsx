@@ -12,6 +12,7 @@ import { EditBookScreen } from '../features/book/EditBookScreen';
 import { AddBookScreen } from '../features/add/AddBookScreen';
 import { PlaceholderScreen } from './PlaceholderScreen';
 import { LoansScreen } from '../features/loans/LoansScreen';
+import { ToBuyScreen } from '../features/toBuy/ToBuyScreen';
 import { PersonScreen } from '../features/loans/PersonScreen';
 
 let lastTab: TabId = 'library';
@@ -43,7 +44,7 @@ export function App() {
       break;
     case 'tobuy':
       lastTab = 'tobuy';
-      screen = <PlaceholderScreen title="To Buy" />;
+      screen = <ToBuyScreen />;
       break;
     case 'loans':
       lastTab = 'loans';

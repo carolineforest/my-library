@@ -153,6 +153,7 @@ img { display: block; max-width: 100%; }
   font-size: var(--text-md);
   cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
   transition: transform 0.08s ease, background 0.15s ease;
 }
 .btn:active { transform: scale(0.97); }
@@ -557,3 +558,10 @@ img { display: block; max-width: 100%; }
 .history { list-style: none; padding: 0; margin: 0; }
 .history li { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--color-border); font-size: var(--text-sm); }
 .history li:last-child { border-bottom: none; }
+
+/* Default size for icons placed inline in text rows */
+.row > svg,
+p > svg,
+h3 > svg,
+.book-row > svg { width: 20px; height: 20px; flex: none; }
+.book-row > svg { color: var(--color-accent); }

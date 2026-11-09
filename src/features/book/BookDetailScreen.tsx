@@ -10,11 +10,13 @@ import { showToast } from '../../components/Toast';
 import { goBack, href, navigate } from '../../app/router';
 import { joinAuthors } from '../../utils/text';
 import { formatDate } from '../../utils/dates';
+import { ChangeCoverSheet } from './ChangeCoverSheet';
 import './book.css';
 
 export function BookDetailScreen({ id }: { id?: string }) {
   const book = useBook(id);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [changingCover, setChangingCover] = useState(false);
 
   if (book === undefined) return <div className="page" />;
   if (book === null)
@@ -58,6 +60,12 @@ export function BookDetailScreen({ id }: { id?: string }) {
             <span className="badge">{book.format}</span>
           </div>
         </div>
+      </div>
+
+      <div className="book-actions section">
+        <button type="button" className="btn" onClick={() => setChangingCover(true)}>
+          <Icon name="image" /> Change Cover
+        </button>
       </div>
 
       {(book.location || book.tags.length > 0) && (
@@ -107,6 +115,7 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </button>
       </section>
 
+      {changingCover && <ChangeCoverSheet book={book} onClose={() => setChangingCover(false)} />}
       {confirmDelete && (
         <Sheet title="Delete this book?" onClose={() => setConfirmDelete(false)}>
           <p>

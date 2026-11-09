@@ -60,6 +60,13 @@ src/
 `--color-accent`, sage secondary `--color-secondary`), fonts (Fraunces headings, Inter body via Google
 Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file.
 
+## Book lookup (src/services/bookLookup)
+- `index.ts` is the only entry point screens use: `lookupIsbn`, `searchBooks`, `findEditions`, `findCoverOptions`.
+- Open Library first (isbn/{isbn}.json + author + work fetches; search.json; works/{key}/editions.json),
+  Google Books (no key) as fallback / gap filler. Results share the `FoundBook` shape (types.ts).
+- Barcode scanning: `features/scan/BarcodeScanner.tsx` using @zxing/browser (EAN-13; only 978/979 = books).
+  Loaded lazily (big library) only when the Scan tab opens.
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.
@@ -71,7 +78,7 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 
 ## Status / phases
 - [x] Phase 1: setup, deploy, PWA, theme, tabs, data layer, manual entry, grid, detail page
-- [ ] Phase 2: search + barcode scan, covers, Change Cover
+- [x] Phase 2: search + barcode scan, covers, Change Cover
 - [ ] Phase 3: reading tracking, shelves/tags, location, search/sort/filter
 - [ ] Phase 4: loans, history, People
 - [ ] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It

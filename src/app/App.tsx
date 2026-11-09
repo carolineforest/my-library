@@ -35,7 +35,9 @@ export function App() {
       screen = <EditBookScreen id={id} />;
       break;
     case 'add':
-      screen = <AddBookScreen list={route.query.list === 'toBuy' ? 'toBuy' : 'owned'} mode={route.query.mode} />;
+      screen = (
+        <AddBookScreen list={route.query.list === 'toBuy' ? 'toBuy' : 'owned'} mode={route.query.mode} isbn={route.query.isbn} />
+      );
       break;
     case 'tobuy':
       lastTab = 'tobuy';

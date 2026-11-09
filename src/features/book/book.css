@@ -1,0 +1,16 @@
+/* Styles for the book page. */
+.book-hero {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+}
+.book-hero-cover { width: 42%; max-width: 220px; flex: none; }
+.book-hero-text { flex: 1; min-width: 0; padding-bottom: 4px; }
+.book-hero-text h1 { font-size: var(--text-xl); margin-bottom: 6px; overflow-wrap: anywhere; }
+.book-authors { color: var(--color-text-muted); font-size: var(--text-md); }
+.book-description { white-space: pre-line; font-size: var(--text-sm); }
+.book-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.book-actions .btn { padding-left: 10px; padding-right: 10px; }
+@media (min-width: 700px) {
+  .book-hero-text h1 { font-size: var(--text-2xl); }
+}

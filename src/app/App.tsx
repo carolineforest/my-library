@@ -13,6 +13,7 @@ import { AddBookScreen } from '../features/add/AddBookScreen';
 import { PlaceholderScreen } from './PlaceholderScreen';
 import { LoansScreen } from '../features/loans/LoansScreen';
 import { ToBuyScreen } from '../features/toBuy/ToBuyScreen';
+import { GoodreadsImportScreen } from '../features/import/GoodreadsImportScreen';
 import { PersonScreen } from '../features/loans/PersonScreen';
 
 let lastTab: TabId = 'library';
@@ -41,6 +42,10 @@ export function App() {
       screen = (
         <AddBookScreen list={route.query.list === 'toBuy' ? 'toBuy' : 'owned'} mode={route.query.mode} isbn={route.query.isbn} />
       );
+      break;
+    case 'import':
+      lastTab = 'settings';
+      screen = <GoodreadsImportScreen />;
       break;
     case 'tobuy':
       lastTab = 'tobuy';

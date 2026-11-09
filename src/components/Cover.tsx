@@ -23,6 +23,12 @@ interface CoverProps {
   eager?: boolean;
 }
 
+/** If a cover failed (e.g. the service was busy), drop the saved copy so it's retried later. */
+function forgetCachedCover(url: string) {
+  if (typeof caches === 'undefined' || url.startsWith('blob:')) return;
+  caches.open('book-covers').then((c) => c.delete(url)).catch(() => {});
+}
+
 export function Cover({ book, badge, badgeClass = 'badge-loan', eager }: CoverProps) {
   const customUrl = useCoverImageUrl(book.customCoverId);
   const src = customUrl ?? book.coverUrl;
@@ -39,7 +45,10 @@ export function Cover({ book, badge, badgeClass = 'badge-loan', eager }: CoverPr
             loading={eager ? 'eager' : 'lazy'}
             decoding="async"
             referrerPolicy="no-referrer"
-            onError={() => setFailed(true)}
+            onError={() => {
+              setFailed(true);
+              forgetCachedCover(src);
+            }}
             onLoad={(e) => {
               // Some services send a tiny 1x1 image when they have no cover.
               if (e.currentTarget.naturalWidth < 5) setFailed(true);

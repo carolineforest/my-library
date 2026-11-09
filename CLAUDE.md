@@ -88,6 +88,13 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
   build a serverless function that holds the API key, write a provider that calls it, set `priceProvider`.
   No scraping.
 
+## Goodreads import
+- `services/importExport/goodreads.ts` parses the Goodreads export CSV (ISBNs come as ="..."; dates YYYY/MM/DD)
+  and maps rows to books using `ImportOptions` (status, rating, date read, notes, shelves→tags, to-read destination).
+- Screen: `features/import/GoodreadsImportScreen.tsx` (`#/import/goodreads`). Review list with checkboxes; books
+  already in the app are flagged and unticked. Nothing is saved until Import. Covers use Open Library by ISBN.
+- `Cover` deletes a failed image from the `book-covers` cache so it is retried later (opaque responses get cached).
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.
@@ -103,5 +110,5 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - [x] Phase 3: reading tracking, shelves/tags, location, search/sort/filter
 - [x] Phase 4: loans, history, People
 - [x] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It
-- [ ] Phase 6: Goodreads import
+- [x] Phase 6: Goodreads import
 - [ ] Phase 7: stats, backup/export, polish

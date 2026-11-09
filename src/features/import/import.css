@@ -1,0 +1,24 @@
+/* Goodreads import screen. */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  font-size: var(--text-md);
+  cursor: pointer;
+}
+.check-row input,
+.import-row input {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  accent-color: var(--color-accent);
+}
+.import-row .cover-wrap { width: 46px; }
+.import-toolbar { position: sticky; top: 0; z-index: 3; background: var(--color-bg); padding: 8px 0; }
+.import-footer {
+  position: sticky;
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 8px);
+  z-index: 3;
+}
+.import-footer .btn { box-shadow: var(--shadow-card); }

@@ -95,6 +95,19 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
   already in the app are flagged and unticked. Nothing is saved until Import. Covers use Open Library by ISBN.
 - `Cover` deletes a failed image from the `book-covers` cache so it is retried later (opaque responses get cached).
 
+## Stats, backup, settings
+- Stats math: `features/stats/computeStats.ts` (a read counts in the year of its `finished` date; re-reads count).
+  Charts: `features/stats/BarChart.tsx` (single-series bars in `--color-accent`, tap for value, hidden table for
+  screen readers). The accent/secondary pair is NOT color-blind-safe as a two-series pair, so don't use them
+  to distinguish series in one chart.
+- Reading goals: setting `goal:<year>`; editor in `features/stats/GoalEditor.tsx` (used by Stats and Settings).
+- Backup: `services/importExport/backup.ts`. JSON file `{format:'my-library-backup', version:1, data}`;
+  uploaded covers are base64. Restore REPLACES everything (`repository.replaceAllData`). If the data model
+  changes, bump `FORMAT_VERSION` and convert old backups in `readBackupFile`.
+  Saving uses the iOS share sheet (`navigator.share` with files) → "Save to Files"; desktop falls back to download.
+  The file is prepared first, then a second tap saves it (iOS needs the share call straight from a tap).
+- `lastBackup` setting drives `BackupReminder` on Library (>30 days, snooze 7 days in localStorage).
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.
@@ -111,4 +124,4 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - [x] Phase 4: loans, history, People
 - [x] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It
 - [x] Phase 6: Goodreads import
-- [ ] Phase 7: stats, backup/export, polish
+- [x] Phase 7: stats, backup/export, polish

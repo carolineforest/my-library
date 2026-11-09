@@ -10,10 +10,11 @@ import { LibraryScreen } from '../features/library/LibraryScreen';
 import { BookDetailScreen } from '../features/book/BookDetailScreen';
 import { EditBookScreen } from '../features/book/EditBookScreen';
 import { AddBookScreen } from '../features/add/AddBookScreen';
-import { PlaceholderScreen } from './PlaceholderScreen';
 import { LoansScreen } from '../features/loans/LoansScreen';
 import { ToBuyScreen } from '../features/toBuy/ToBuyScreen';
 import { GoodreadsImportScreen } from '../features/import/GoodreadsImportScreen';
+import { StatsScreen } from '../features/stats/StatsScreen';
+import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { PersonScreen } from '../features/loans/PersonScreen';
 
 let lastTab: TabId = 'library';
@@ -57,11 +58,11 @@ export function App() {
       break;
     case 'stats':
       lastTab = 'stats';
-      screen = <PlaceholderScreen title="Stats" />;
+      screen = <StatsScreen />;
       break;
     case 'settings':
       lastTab = 'settings';
-      screen = <PlaceholderScreen title="Settings" />;
+      screen = <SettingsScreen />;
       break;
     default:
       lastTab = 'library';

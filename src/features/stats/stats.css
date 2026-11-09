@@ -1,0 +1,38 @@
+/* Stats tab: tiles, goal ring/bar, and charts. Colors come from theme.css. */
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+.tile { background: var(--color-surface); border-radius: var(--radius-lg); padding: 14px 16px; box-shadow: var(--shadow-card); text-decoration: none; color: inherit; display: block; }
+.tile-value { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 600; line-height: 1.1; }
+.tile-label { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.goal-track { height: 12px; border-radius: 999px; background: var(--color-surface-2); overflow: hidden; margin: 10px 0 6px; }
+.goal-fill { height: 100%; border-radius: 999px; background: var(--color-accent); transition: width 0.4s ease; }
+
+.chart { margin: 0; }
+.chart-readout { font-size: var(--text-sm); min-height: 1.5em; margin-bottom: 8px; }
+.chart-plot { display: flex; align-items: stretch; gap: 4px; height: 170px; }
+.chart-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+.chart-bar-area { flex: 1; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--color-border); }
+.chart-bar {
+  width: min(70%, 28px);
+  background: var(--color-accent);
+  opacity: 0.55;
+  border-radius: 4px 4px 0 0;
+  min-height: 0;
+}
+.chart-col.is-active .chart-bar,
+.chart-col:hover .chart-bar { opacity: 1; }
+.chart-label { font-size: 0.6875rem; color: var(--color-text-muted); text-align: center; padding-top: 4px; }
+.chart-col.is-active .chart-label { color: var(--color-text); font-weight: 600; }
+.stats-table td, .stats-table th { padding: 4px 0; border-bottom: 1px solid var(--color-border); }

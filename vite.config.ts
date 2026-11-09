@@ -8,6 +8,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 const REPO_NAME = 'my-library';
 
 export default defineConfig({
+  // Shown in Settings → About, so you can tell which version is running.
+  define: { __APP_VERSION__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')) },
   base: `/${REPO_NAME}/`,
   plugins: [
     react(),

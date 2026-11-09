@@ -1,6 +1,6 @@
 // A single book's page: big cover, details, and actions.
 import { useState } from 'react';
-import { useBook } from '../../data/hooks';
+import { useBook, useBookLoans } from '../../data/hooks';
 import { deleteBook } from '../../data/repository';
 import { Cover } from '../../components/Cover';
 import { Icon } from '../../components/Icon';
@@ -12,6 +12,8 @@ import { joinAuthors } from '../../utils/text';
 import { formatDate } from '../../utils/dates';
 import { ChangeCoverSheet } from './ChangeCoverSheet';
 import { ReadingSection } from './ReadingSection';
+import { LendSheet, ReturnSheet } from '../loans/LendSheet';
+import { LoanHistory } from '../loans/LoanHistory';
 import { READING_STATUS_LABELS } from '../../data/models';
 import { StarsSmall } from '../../components/Stars';
 import './book.css';
@@ -20,6 +22,9 @@ export function BookDetailScreen({ id }: { id?: string }) {
   const book = useBook(id);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [changingCover, setChangingCover] = useState(false);
+  const [loanPanel, setLoanPanel] = useState(false);
+  const loans = useBookLoans(id);
+  const activeLoan = loans?.find((l) => !l.returnedDate);
 
   if (book === undefined) return <div className="page" />;
   if (book === null)
@@ -53,7 +58,7 @@ export function BookDetailScreen({ id }: { id?: string }) {
 
       <div className="book-hero">
         <div className="book-hero-cover">
-          <Cover book={book} eager />
+          <Cover book={book} eager badge={activeLoan ? `On Loan to ${activeLoan.person}` : undefined} />
         </div>
         <div className="book-hero-text">
           <h1>{book.title}</h1>
@@ -68,7 +73,21 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </div>
       </div>
 
+      {activeLoan && (
+        <p className="notice notice-secondary section" role="status">
+          <Icon name="loan" />
+          <span>
+            <strong>On Loan to {activeLoan.person}</strong> since {formatDate(activeLoan.lentDate)}
+          </span>
+        </p>
+      )}
+
       <div className="book-actions section">
+        {book.list === 'owned' && (
+          <button type="button" className={`btn ${activeLoan ? 'btn-secondary' : ''}`} onClick={() => setLoanPanel(true)}>
+            <Icon name="loan" /> {activeLoan ? 'Return to Shelf' : 'Loan'}
+          </button>
+        )}
         <button type="button" className="btn" onClick={() => setChangingCover(true)}>
           <Icon name="image" /> Change Cover
         </button>
@@ -124,12 +143,20 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </dl>
       </section>
 
+      {loans && <LoanHistory loans={loans} />}
+
       <section className="section">
         <button type="button" className="btn btn-danger btn-block" onClick={() => setConfirmDelete(true)}>
           <Icon name="trash" /> Delete this book
         </button>
       </section>
 
+      {loanPanel &&
+        (activeLoan ? (
+          <ReturnSheet book={book} loan={activeLoan} onClose={() => setLoanPanel(false)} />
+        ) : (
+          <LendSheet book={book} onClose={() => setLoanPanel(false)} />
+        ))}
       {changingCover && <ChangeCoverSheet book={book} onClose={() => setChangingCover(false)} />}
       {confirmDelete && (
         <Sheet title="Delete this book?" onClose={() => setConfirmDelete(false)}>

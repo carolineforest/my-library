@@ -73,6 +73,11 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - Library search/sort/filter rules: `features/library/libraryQuery.ts` (pure + tested).
   Filters can be preset by URL: `#/library?tag=X`, `?location=X`, `?status=read`, `?onLoan=1`.
 
+## Loans
+- `features/loans/`: LendSheet/ReturnSheet (panels), LoanHistory (on book page), LoansScreen
+  (`#/loans` current, `#/loans/people`), PersonScreen (`#/loans/person/<personKey>`), people.ts (grouping).
+- A book can only have one open loan (enforced in `repository.lendBook`).
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.
@@ -86,7 +91,7 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - [x] Phase 1: setup, deploy, PWA, theme, tabs, data layer, manual entry, grid, detail page
 - [x] Phase 2: search + barcode scan, covers, Change Cover
 - [x] Phase 3: reading tracking, shelves/tags, location, search/sort/filter
-- [ ] Phase 4: loans, history, People
+- [x] Phase 4: loans, history, People
 - [ ] Phase 5: To Buy, editions, already-own warning, price links, PriceProvider, I Bought It
 - [ ] Phase 6: Goodreads import
 - [ ] Phase 7: stats, backup/export, polish

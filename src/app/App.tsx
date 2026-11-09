@@ -11,6 +11,8 @@ import { BookDetailScreen } from '../features/book/BookDetailScreen';
 import { EditBookScreen } from '../features/book/EditBookScreen';
 import { AddBookScreen } from '../features/add/AddBookScreen';
 import { PlaceholderScreen } from './PlaceholderScreen';
+import { LoansScreen } from '../features/loans/LoansScreen';
+import { PersonScreen } from '../features/loans/PersonScreen';
 
 let lastTab: TabId = 'library';
 
@@ -45,7 +47,7 @@ export function App() {
       break;
     case 'loans':
       lastTab = 'loans';
-      screen = <PlaceholderScreen title="Loans" />;
+      screen = id === 'person' ? <PersonScreen personKey={route.parts[2]} /> : <LoansScreen view={id} />;
       break;
     case 'stats':
       lastTab = 'stats';

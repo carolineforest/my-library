@@ -114,6 +114,7 @@ img { display: block; max-width: 100%; }
   display: flex;
   justify-content: space-around;
   padding: 4px max(6px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(6px, env(safe-area-inset-left));
+  background: var(--color-surface); /* fallback for older iPhones */
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);

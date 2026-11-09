@@ -24,6 +24,8 @@ export function App() {
   const [section, id] = route.parts;
 
   useEffect(() => {
+    // Tell the safety net in index.html that the first screen appeared.
+    (window as unknown as { __appStarted: boolean }).__appStarted = true;
     requestPersistentStorage();
   }, []);
 

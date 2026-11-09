@@ -11,6 +11,9 @@ export default defineConfig({
   // Shown in Settings → About, so you can tell which version is running.
   define: { __APP_VERSION__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')) },
   base: `/${REPO_NAME}/`,
+  // Build JavaScript that older iPhones can run too (iOS 14 and newer),
+  // not just the latest Safari.
+  build: { target: ['es2019', 'safari14', 'ios14'] },
   plugins: [
     react(),
     VitePWA({

@@ -108,6 +108,12 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
   The file is prepared first, then a second tap saves it (iOS needs the share call straight from a tap).
 - `lastBackup` setting drives `BackupReminder` on Library (>30 days, snooze 7 days in localStorage).
 
+## Startup safety net & browser support
+- `vite.config.ts` `build.target` = es2019 / Safari 14 / iOS 14 so older iPhones can run the app.
+- `index.html` has a plain-JS safety net: if `window.__appStarted` (set in App's first effect) isn't true
+  after 10 s, it shows "My Library couldn't start" with the error + device info, a Try Again button, and
+  Reset App (unregisters the service worker and clears code caches, keeps IndexedDB data and covers).
+
 ## Decisions
 - Covers are the hero: grid by default; generated "cloth" placeholder when no cover exists.
 - Online covers are cached by the service worker (`book-covers` cache, CacheFirst) for speed/offline.

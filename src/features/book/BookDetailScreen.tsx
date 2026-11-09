@@ -11,6 +11,9 @@ import { goBack, href, navigate } from '../../app/router';
 import { joinAuthors } from '../../utils/text';
 import { formatDate } from '../../utils/dates';
 import { ChangeCoverSheet } from './ChangeCoverSheet';
+import { ReadingSection } from './ReadingSection';
+import { READING_STATUS_LABELS } from '../../data/models';
+import { StarsSmall } from '../../components/Stars';
 import './book.css';
 
 export function BookDetailScreen({ id }: { id?: string }) {
@@ -57,8 +60,11 @@ export function BookDetailScreen({ id }: { id?: string }) {
           {book.authors.length > 0 && <p className="book-authors">{joinAuthors(book.authors)}</p>}
           <div className="row-wrap">
             {book.list === 'toBuy' && <span className="badge badge-accent">To Buy</span>}
-            <span className="badge">{book.format}</span>
+            {book.list === 'owned' && book.status !== 'none' && (
+              <span className="badge">{READING_STATUS_LABELS[book.status]}</span>
+            )}
           </div>
+          <StarsSmall value={book.rating} />
         </div>
       </div>
 
@@ -68,24 +74,33 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </button>
       </div>
 
-      {(book.location || book.tags.length > 0) && (
-        <section className="section card">
+      {book.list === 'owned' && (
+        <section className="section card" aria-label="Location and shelves">
           {book.location && (
-            <p className="row">
-              <Icon name="pin" /> {book.location}
+            <p>
+              <a className="row" href={href('/library?location=' + encodeURIComponent(book.location))}>
+                <Icon name="pin" /> {book.location}
+              </a>
             </p>
           )}
           {book.tags.length > 0 && (
             <div className="row-wrap">
               {book.tags.map((t) => (
-                <span key={t} className="badge">
-                  {t}
-                </span>
+                <a key={t} className="chip" href={href('/library?tag=' + encodeURIComponent(t))}>
+                  <Icon name="tag" /> {t}
+                </a>
               ))}
             </div>
           )}
+          {!book.location && book.tags.length === 0 && (
+            <a className="row" href={href('/edit/' + book.id)}>
+              <Icon name="plus" /> Add a location and shelves
+            </a>
+          )}
         </section>
       )}
+
+      {book.list === 'owned' && <ReadingSection book={book} />}
 
       {book.description && (
         <section className="section">

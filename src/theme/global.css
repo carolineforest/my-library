@@ -565,3 +565,6 @@ p > svg,
 h3 > svg,
 .book-row > svg { width: 20px; height: 20px; flex: none; }
 .book-row > svg { color: var(--color-accent); }
+a.chip,
+a.row { color: inherit; text-decoration: none; }
+a.row svg { color: var(--color-accent); }

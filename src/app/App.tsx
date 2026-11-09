@@ -26,7 +26,7 @@ export function App() {
   switch (section) {
     case 'library':
       lastTab = 'library';
-      screen = <LibraryScreen />;
+      screen = <LibraryScreen key={JSON.stringify(route.query)} params={route.query} />;
       break;
     case 'book':
       screen = <BookDetailScreen id={id} />;

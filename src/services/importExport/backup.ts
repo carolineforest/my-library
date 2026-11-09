@@ -1,7 +1,7 @@
 // Backup file = the whole library (books, to-buy, loans, reading data, tags,
 // settings, uploaded cover photos) as one JSON file. Also a CSV for spreadsheets.
 import { exportAllData, replaceAllData, setSetting, type AllData } from '../../data/repository';
-import type { Book, CoverImage, Loan } from '../../data/models';
+import { LIST_LABELS, type Book, type CoverImage, type Loan } from '../../data/models';
 import { lastFinished } from '../../data/reading';
 import { toCsv } from './csv';
 import { today } from '../../utils/dates';
@@ -80,7 +80,7 @@ export function booksToCsv(books: Book[], loans: Loan[]): string {
   const rows = books.map((b) => {
     const loan = openLoan.get(b.id);
     return [
-      b.list === 'owned' ? 'My Library' : 'To Buy',
+      LIST_LABELS[b.list],
       b.title, b.authors.join('; '), b.isbn13, b.isbn10, b.publisher, b.year, b.pageCount, b.format,
       b.status === 'none' ? '' : b.status, b.rating, lastFinished(b), b.reads.filter((r) => r.finished).length || '',
       b.location, b.tags.join('; '), loan?.person, loan?.lentDate, b.notes, b.dateAdded.slice(0, 10),

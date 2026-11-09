@@ -29,7 +29,7 @@ export function BookGrid({ books, view, loans }: BookGridProps) {
                   <div className="book-row-sub">{joinAuthors(b.authors)}</div>
                   <div className="row-wrap" style={{ marginTop: 4 }}>
                     {loan && <span className="badge badge-loan">On Loan to {loan.person}</span>}
-                    {b.list === 'owned' && b.status !== 'none' && (
+                    {b.list !== 'toBuy' && b.status !== 'none' && (
                       <span className="badge">{READING_STATUS_LABELS[b.status]}</span>
                     )}
                     <StarsSmall value={b.rating} />

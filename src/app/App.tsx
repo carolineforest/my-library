@@ -18,6 +18,8 @@ import { GoodreadsImportScreen } from '../features/import/GoodreadsImportScreen'
 import { StatsScreen } from '../features/stats/StatsScreen';
 import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { PersonScreen } from '../features/loans/PersonScreen';
+import { ReadingLogScreen } from '../features/readingLog/ReadingLogScreen';
+import { parseList } from '../data/models';
 
 let lastTab: TabId = 'library';
 
@@ -57,7 +59,7 @@ export function App() {
       break;
     case 'add':
       screen = (
-        <AddBookScreen list={route.query.list === 'toBuy' ? 'toBuy' : 'owned'} mode={route.query.mode} isbn={route.query.isbn} />
+        <AddBookScreen list={parseList(route.query.list)} mode={route.query.mode} isbn={route.query.isbn} />
       );
       break;
     case 'import':
@@ -74,7 +76,7 @@ export function App() {
       break;
     case 'stats':
       lastTab = 'stats';
-      screen = <StatsScreen />;
+      screen = id === 'log' ? <ReadingLogScreen /> : <StatsScreen />;
       break;
     case 'settings':
       lastTab = 'settings';

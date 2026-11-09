@@ -1,5 +1,6 @@
 // "Is this the book?" panel shown after a scan or search, before saving.
 import type { BookList } from '../../data/models';
+import { ADD_BUTTON, DEFAULT_FORMAT } from './labels';
 import type { FoundBook } from '../../services/bookLookup';
 import { Sheet } from '../../components/Sheet';
 import { Cover } from '../../components/Cover';
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export function ConfirmFoundSheet({ found, list, onConfirm, onCancel, busy }: Props) {
-  const facts = [found.year, found.publisher, list === 'toBuy' ? 'Paperback' : found.format, found.pageCount && `${found.pageCount} pages`]
+  const facts = [found.year, found.publisher, list === 'owned' ? found.format : DEFAULT_FORMAT[list], found.pageCount && `${found.pageCount} pages`]
     .filter(Boolean)
     .join(' · ');
   return (
@@ -30,9 +31,14 @@ export function ConfirmFoundSheet({ found, list, onConfirm, onCancel, busy }: Pr
           {found.isbn13 && <p className="small muted">ISBN {found.isbn13}</p>}
         </div>
       </div>
+      {list === 'readLog' && (
+        <p className="small muted" style={{ marginTop: 12 }}>
+          It will be logged as read today. You can change the dates, format and rating on the next screen.
+        </p>
+      )}
       <div className="stack" style={{ marginTop: 20 }}>
         <button type="button" className="btn btn-primary btn-block" onClick={onConfirm} disabled={busy}>
-          {list === 'toBuy' ? 'Add to To Buy' : 'Add to My Library'}
+          {ADD_BUTTON[list]}
         </button>
         <button type="button" className="btn btn-block" onClick={onCancel}>
           Not this one

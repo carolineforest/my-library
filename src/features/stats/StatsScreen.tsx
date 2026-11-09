@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useBooks, useLoans, useSetting } from '../../data/hooks';
 import { EmptyState } from '../../components/EmptyState';
 import { href } from '../../app/router';
+import { Icon } from '../../components/Icon';
 import { BarChart } from './BarChart';
 import { perYear, totals, yearStats } from './computeStats';
 import { GoalEditor } from './GoalEditor';
@@ -24,14 +25,17 @@ export function StatsScreen() {
       <div className="page">
         <header className="page-header">
           <h1>Stats</h1>
+        <a className="add-btn" href={href('/add?list=readLog')} aria-label="Log a book I read (ebook, audiobook, borrowed)">
+          <Icon name="plus" />
+        </a>
         </header>
         <EmptyState
           art="chart"
           title="No stats yet"
-          message="Add books and mark them as Read to see your reading year come to life."
+          message="Mark books as Read, or tap + to log an ebook, audiobook or borrowed book you've read."
           action={
-            <a className="btn btn-primary" href={href('/add?list=owned')}>
-              Add a book
+            <a className="btn btn-primary" href={href('/add?list=readLog')}>
+              <Icon name="plus" /> Log a book I read
             </a>
           }
         />
@@ -55,6 +59,9 @@ export function StatsScreen() {
             ))}
           </select>
         )}
+        <a className="add-btn" href={href('/add?list=readLog')} aria-label="Log a book I read (ebook, audiobook, borrowed)">
+          <Icon name="plus" />
+        </a>
       </header>
 
       <section className="card" aria-labelledby="goal-title">
@@ -96,10 +103,28 @@ export function StatsScreen() {
         </a>
       </section>
 
+      <a className="card row" href={href('/stats/log')} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Icon name="book" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600 }}>Reading Log</div>
+          <div className="small muted">
+            {t.readLog
+              ? `${t.readLog} book${t.readLog === 1 ? '' : 's'} read that you don't own (ebooks, audiobooks, borrowed)`
+              : "Ebooks, audiobooks and borrowed books you've read. Tap + to log one."}
+          </div>
+        </div>
+        <Icon name="chevron" />
+      </a>
+
       <section className="card">
         <h2 className="section-title">
           {year}: {ys.books} book{ys.books === 1 ? '' : 's'}, {ys.pages.toLocaleString()} pages
         </h2>
+        {ys.fromLog > 0 && (
+          <p className="small muted" style={{ marginTop: -6 }}>
+            Includes {ys.fromLog} from your Reading Log.
+          </p>
+        )}
         <BarChart
           title={`Books read per month in ${year}`}
           unit="book"

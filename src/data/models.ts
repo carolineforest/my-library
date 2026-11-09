@@ -1,8 +1,32 @@
 // The shapes of everything the app saves. If you add a field here that must be
 // stored or searched, also check db.ts (indexes) and backup.ts (export/import).
 
-/** Which list a book lives on. */
-export type BookList = 'owned' | 'toBuy';
+/**
+ * Which list a book lives on:
+ * - owned:   My Library, the PHYSICAL books I own.
+ * - toBuy:   books I want to buy.
+ * - readLog: books I read but don't own physically (ebooks, audiobooks,
+ *            borrowed books). They count in Stats but never appear in My Library.
+ */
+export type BookList = 'owned' | 'toBuy' | 'readLog';
+
+export const LIST_LABELS: Record<BookList, string> = {
+  owned: 'My Library',
+  toBuy: 'To Buy',
+  readLog: 'Reading Log',
+};
+
+/** The screen each list lives on (used for Back buttons). */
+export const LIST_HOME: Record<BookList, string> = {
+  owned: '/library',
+  toBuy: '/tobuy',
+  readLog: '/stats/log',
+};
+
+/** Turn an address value like "?list=readLog" into a list, defaulting to My Library. */
+export function parseList(value: string | undefined): BookList {
+  return value === 'toBuy' || value === 'readLog' ? value : 'owned';
+}
 
 export type ReadingStatus = 'none' | 'want' | 'reading' | 'read';
 

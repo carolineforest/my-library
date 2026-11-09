@@ -1,7 +1,7 @@
 // Before saving a new book, check whether it already seems to be in my
-// library (or on my To Buy list) and ask before adding it again.
+// library (or already on the list I'm adding to) and ask before adding it again.
 import { useState, type ReactNode } from 'react';
-import type { Book, BookList } from '../../data/models';
+import { LIST_LABELS, type Book, type BookList } from '../../data/models';
 import type { BookIdentity } from '../../data/duplicates';
 import { findDuplicates } from '../../data/repository';
 import { Sheet } from '../../components/Sheet';
@@ -11,7 +11,8 @@ import { joinAuthors } from '../../utils/text';
 
 interface Pending {
   owned: Book[];
-  toBuy: Book[];
+  /** Matches on the list I'm adding to (To Buy or Reading Log). */
+  sameList: Book[];
   list: BookList;
   proceed: () => void;
 }
@@ -24,27 +25,34 @@ export function useDuplicateGuard(): {
 
   async function guard(candidate: BookIdentity, list: BookList, proceed: () => void) {
     const owned = await findDuplicates(candidate, 'owned');
-    const toBuy = list === 'toBuy' ? await findDuplicates(candidate, 'toBuy') : [];
-    if (owned.length === 0 && toBuy.length === 0) proceed();
-    else setPending({ owned, toBuy, list, proceed });
+    const sameList = list === 'owned' ? [] : await findDuplicates(candidate, list);
+    if (owned.length === 0 && sameList.length === 0) proceed();
+    else setPending({ owned, sameList, list, proceed });
   }
 
   const dialog = pending && (
-    <Sheet title={pending.owned.length ? 'You already own this' : 'Already on your To Buy list'} onClose={() => setPending(null)}>
+    <Sheet title={pending.owned.length ? 'You already own this' : `Already in your ${LIST_LABELS[pending.list]}`} onClose={() => setPending(null)}>
       <p className="muted">
         {pending.owned.length
           ? 'This looks like a book that is already in My Library:'
-          : 'This looks like a book that is already on your To Buy list:'}
+          : `This looks like a book that is already in your ${LIST_LABELS[pending.list]}:`}
       </p>
+      {pending.list === 'readLog' && (
+        <p className="small muted">
+          {pending.owned.length
+            ? 'To log reading your own copy, open it and use the Reading section instead. Add it here only if you read a different copy, like the ebook.'
+            : 'To log reading it again, open it and tap “Log another read”.'}
+        </p>
+      )}
       <ul className="book-list">
-        {[...pending.owned, ...pending.toBuy].map((b) => (
+        {[...pending.owned, ...pending.sameList].map((b) => (
           <li key={b.id}>
             <a className="book-row" href={href('/book/' + b.id)} onClick={() => setPending(null)}>
               <Cover book={b} />
               <div className="book-row-body">
                 <div className="book-row-title">{b.title}</div>
                 <div className="book-row-sub">
-                  {joinAuthors(b.authors)} · {b.list === 'owned' ? 'My Library' : 'To Buy'}
+                  {joinAuthors(b.authors)} · {LIST_LABELS[b.list]}
                   {b.format ? ` · ${b.format}` : ''}
                 </div>
               </div>

@@ -1,7 +1,8 @@
 // "Add a book" screen with three ways to add: Scan, Search, or type it in.
-// `list` decides where the book goes: My Library ("owned") or To Buy.
+// `list` decides where the book goes: My Library ("owned"), To Buy, or the Reading Log.
 import { useState } from 'react';
-import type { BookList } from '../../data/models';
+import { LIST_HOME, type BookList } from '../../data/models';
+import { ADD_BUTTON, ADD_TITLE, DEFAULT_FORMAT } from './labels';
 import type { FoundBook } from '../../services/bookLookup';
 import { goBack, navigate } from '../../app/router';
 import { Icon } from '../../components/Icon';
@@ -9,7 +10,7 @@ import { showToast } from '../../components/Toast';
 import { BookForm } from '../book/BookForm';
 import { useDuplicateGuard } from './useDuplicateGuard';
 import { saveNewBook } from './saveBook';
-import { foundToNewBook } from './foundToBook';
+import { foundToNewBook, readToday } from './foundToBook';
 import { ConfirmFoundSheet } from './ConfirmFoundSheet';
 import { ScanPanel } from './ScanPanel';
 import { SearchPanel } from './SearchPanel';
@@ -17,10 +18,12 @@ import { SearchPanel } from './SearchPanel';
 type Mode = 'scan' | 'search' | 'manual';
 
 export function AddBookScreen({ list, mode: modeParam, isbn }: { list: BookList; mode?: string; isbn?: string }) {
-  const mode: Mode = modeParam === 'manual' || modeParam === 'search' ? modeParam : 'scan';
+  // Reading Log books are often ebooks (no barcode), so that list starts on Search.
+  const fallbackMode: Mode = list === 'readLog' ? 'search' : 'scan';
+  const mode: Mode = modeParam === 'manual' || modeParam === 'search' || modeParam === 'scan' ? modeParam : fallbackMode;
   const { guard, dialog } = useDuplicateGuard();
   const [found, setFound] = useState<FoundBook>();
-  const backTo = list === 'toBuy' ? '/tobuy' : '/library';
+  const backTo = LIST_HOME[list];
   const switchTo = (m: Mode, extra = '') => navigate(`/add?list=${list}&mode=${m}${extra}`, { replace: true });
 
   function confirmFound() {
@@ -41,8 +44,15 @@ export function AddBookScreen({ list, mode: modeParam, isbn }: { list: BookList;
         <button type="button" className="icon-btn" onClick={() => goBack(backTo)} aria-label="Back">
           <Icon name="back" />
         </button>
-        <h1>{list === 'toBuy' ? 'Add to To Buy' : 'Add a Book'}</h1>
+        <h1>{ADD_TITLE[list]}</h1>
       </header>
+
+      {list === 'readLog' && (
+        <p className="small muted" style={{ marginTop: -4 }}>
+          For books you read but don't own as a physical copy (ebooks, audiobooks, borrowed books). They count in your
+          Stats but don't appear in My Library.
+        </p>
+      )}
 
       <div className="segmented" role="group" aria-label="How to add" style={{ marginBottom: 20 }}>
         {(['scan', 'search', 'manual'] as Mode[]).map((m) => (
@@ -65,11 +75,11 @@ export function AddBookScreen({ list, mode: modeParam, isbn }: { list: BookList;
           key={isbn}
           allowCoverUpload
           showShelving={list === 'owned'}
-          initial={{ format: 'Paperback', isbn13: isbn }}
-          submitLabel={list === 'toBuy' ? 'Add to To Buy' : 'Add to My Library'}
+          initial={{ format: DEFAULT_FORMAT[list], isbn13: isbn }}
+          submitLabel={ADD_BUTTON[list]}
           onSubmit={({ fields, coverFile }) =>
             guard(fields, list, async () => {
-              const book = await saveNewBook({ ...fields, list }, coverFile);
+              const book = await saveNewBook({ ...fields, list, ...(list === 'readLog' ? readToday() : {}) }, coverFile);
               showToast(`Added “${book.title}”`);
               navigate('/book/' + book.id, { replace: true });
             })

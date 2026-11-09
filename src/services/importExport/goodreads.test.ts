@@ -46,6 +46,16 @@ describe('goodreads import', () => {
     expect([bare.status, bare.rating, bare.notes, bare.tags, bare.reads]).toEqual(['none', undefined, undefined, [], []]);
   });
 
+  it('can send read books to the Reading Log', () => {
+    const [dune, catcher] = parseGoodreadsCsv(SAMPLE);
+    const opts = { ...DEFAULT_IMPORT_OPTIONS, readDestination: 'readLog' as const };
+    const b = goodreadsRowToBook(dune, opts);
+    expect(b.list).toBe('readLog');
+    expect(b.status).toBe('read');
+    expect(b.reads?.[0].finished).toBe('2021-03-14');
+    expect(goodreadsRowToBook(catcher, opts).list).toBe('toBuy');
+  });
+
   it('rejects other CSV files with a helpful message', () => {
     expect(() => parseGoodreadsCsv('a,b\n1,2')).toThrow(/Goodreads/);
   });

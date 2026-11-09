@@ -22,6 +22,7 @@ import './import.css';
 interface Summary {
   owned: number;
   toBuy: number;
+  readLog: number;
   skippedDuplicates: number;
   skippedUnselected: number;
 }
@@ -68,6 +69,7 @@ export function GoodreadsImportScreen() {
       setSummary({
         owned: books.filter((b) => b.list === 'owned').length,
         toBuy: books.filter((b) => b.list === 'toBuy').length,
+        readLog: books.filter((b) => b.list === 'readLog').length,
         skippedDuplicates: notChosen.filter((r) => dupes.has(r.rowId)).length,
         skippedUnselected: notChosen.filter((r) => !dupes.has(r.rowId)).length,
       });
@@ -106,7 +108,14 @@ export function GoodreadsImportScreen() {
         <div className="card stack" role="status">
           <h2>Import complete</h2>
           <p>
-            Added <strong>{summary.owned}</strong> to My Library and <strong>{summary.toBuy}</strong> to To Buy.
+            Added <strong>{summary.owned}</strong> to My Library, <strong>{summary.toBuy}</strong> to To Buy
+            {summary.readLog > 0 && (
+              <>
+                {' '}
+                and <strong>{summary.readLog}</strong> to your Reading Log
+              </>
+            )}
+            .
             <br />
             Skipped {summary.skippedDuplicates} already in the app and {summary.skippedUnselected} you unticked.
           </p>
@@ -118,6 +127,11 @@ export function GoodreadsImportScreen() {
             {summary.toBuy > 0 && (
               <a className="btn" href={href('/tobuy')}>
                 See To Buy
+              </a>
+            )}
+            {summary.readLog > 0 && (
+              <a className="btn" href={href('/stats/log')}>
+                See Reading Log
               </a>
             )}
           </div>
@@ -169,6 +183,22 @@ export function GoodreadsImportScreen() {
               {opt('shelvesAsTags', 'Goodreads shelves as tags')}
             </div>
             <div>
+              <span className="field-label">Books you've read or are reading go to</span>
+              <div className="segmented" role="group" aria-label="Destination for read books">
+                <button type="button" aria-pressed={opts.readDestination === 'owned'} onClick={() => setOpts({ ...opts, readDestination: 'owned' })}>
+                  My Library
+                </button>
+                <button type="button" aria-pressed={opts.readDestination === 'readLog'} onClick={() => setOpts({ ...opts, readDestination: 'readLog' })}>
+                  Reading Log
+                </button>
+              </div>
+              <p className="field-hint">
+                {opts.readDestination === 'owned'
+                  ? 'My Library is for physical books you own. Untick any you only read as ebooks, or choose Reading Log.'
+                  : 'Reading Log is for books you read but don’t own. They count in Stats, not in My Library.'}
+              </p>
+            </div>
+            <div>
               <span className="field-label">Books on your “to-read” shelf go to</span>
               <div className="segmented" role="group" aria-label="Destination for to-read books">
                 <button type="button" aria-pressed={opts.toReadDestination === 'toBuy'} onClick={() => setOpts({ ...opts, toReadDestination: 'toBuy' })}>
@@ -217,7 +247,7 @@ export function GoodreadsImportScreen() {
                       <div className="book-row-sub">{joinAuthors(r.authors)}</div>
                       <div className="row-wrap" style={{ marginTop: 4 }}>
                         {dupes.has(r.rowId) && <span className="badge badge-warn">Already in app</span>}
-                        <span className="badge">{dest === 'toBuy' ? '→ To Buy' : '→ Library'}</span>
+                        <span className="badge">{dest === 'toBuy' ? '→ To Buy' : dest === 'readLog' ? '→ Reading Log' : '→ Library'}</span>
                         <span className="badge">{r.exclusiveShelf}</span>
                       </div>
                     </div>

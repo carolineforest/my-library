@@ -37,7 +37,8 @@ src/
 ```
 
 ## Data model (src/data/models.ts)
-- **Book**: one record for both lists. `list: 'owned' | 'toBuy'`. Title, authors[], isbn13/isbn10,
+- **Book**: one record for all lists. `list: 'owned' | 'toBuy' | 'readLog'`
+  (`LIST_LABELS` / `LIST_HOME` / `parseList` in models.ts). My Library (`owned`) = PHYSICAL books only. Title, authors[], isbn13/isbn10,
   publisher, year, pageCount, format, description, `coverUrl` (current online cover),
   `originalCoverUrl` (for Reset Cover), `customCoverId` (uploaded photo in `covers` table),
   location, tags[], status (`none|want|reading|read`), rating 1–5, notes,
@@ -94,6 +95,17 @@ Fonts in `index.html`), radii, shadows. Dark mode overrides are in the same file
 - Screen: `features/import/GoodreadsImportScreen.tsx` (`#/import/goodreads`). Review list with checkboxes; books
   already in the app are flagged and unticked. Nothing is saved until Import. Covers use Open Library by ISBN.
 - `Cover` deletes a failed image from the `book-covers` cache so it is retried later (opaque responses get cached).
+
+## Reading Log (books read but not owned)
+- `list: 'readLog'`: ebooks, audiobooks, borrowed books. Added from the **+** on Stats (`#/add?list=readLog`,
+  opens on Search) or the Reading Log screen (`#/stats/log`, `features/readingLog/ReadingLogScreen.tsx`).
+- New Reading Log books default to format Ebook, status Read, one read finished today (`readToday()` in
+  `features/add/foundToBook.ts`). Wording per list: `features/add/labels.ts`.
+- Book page: Reading section + Change Cover + "I Own a Copy Now" (`markBought` → moves to My Library,
+  keeps reading history). No loans/location/shelves.
+- Their reads count in Stats (`yearStats.fromLog`), never in My Library or library totals.
+- Goodreads import option `readDestination: 'owned' | 'readLog'` for read/currently-reading books.
+- Added without a Dexie version bump: `list` was already a stored, indexed string, so old data is unchanged.
 
 ## Stats, backup, settings
 - Stats math: `features/stats/computeStats.ts` (a read counts in the year of its `finished` date; re-reads count).

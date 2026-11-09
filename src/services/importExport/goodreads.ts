@@ -35,6 +35,8 @@ export interface ImportOptions {
   shelvesAsTags: boolean;
   /** Where "to-read" books go. */
   toReadDestination: 'toBuy' | 'owned';
+  /** Where every other book (read, currently-reading, custom shelves) goes. */
+  readDestination: 'owned' | 'readLog';
 }
 
 export const DEFAULT_IMPORT_OPTIONS: ImportOptions = {
@@ -44,6 +46,7 @@ export const DEFAULT_IMPORT_OPTIONS: ImportOptions = {
   notes: true,
   shelvesAsTags: true,
   toReadDestination: 'toBuy',
+  readDestination: 'owned',
 };
 
 const BUILT_IN_SHELVES = new Set(['read', 'currently-reading', 'to-read']);
@@ -108,7 +111,8 @@ export function parseGoodreadsCsv(text: string): GoodreadsRow[] {
 
 /** Which list a row will land on with these options. */
 export function destinationOf(row: GoodreadsRow, opts: ImportOptions): BookList {
-  return row.exclusiveShelf === 'to-read' && opts.toReadDestination === 'toBuy' ? 'toBuy' : 'owned';
+  if (row.exclusiveShelf === 'to-read') return opts.toReadDestination;
+  return opts.readDestination;
 }
 
 function statusOf(shelf: string): ReadingStatus {
@@ -121,6 +125,7 @@ function statusOf(shelf: string): ReadingStatus {
 export function goodreadsRowToBook(row: GoodreadsRow, opts: ImportOptions): NewBook {
   const list = destinationOf(row, opts);
   const owned = list === 'owned';
+  const tracksReading = list !== 'toBuy';
   const notes = [row.review, row.privateNotes].filter(Boolean).join('\n\n');
   const coverUrl = row.isbn13 ? olCoverByIsbn(row.isbn13) : undefined;
   return {
@@ -132,10 +137,10 @@ export function goodreadsRowToBook(row: GoodreadsRow, opts: ImportOptions): NewB
     publisher: row.publisher,
     year: row.year,
     pageCount: row.pages,
-    format: owned ? (toFormat(row.binding) ?? 'Paperback') : 'Paperback',
+    format: owned ? (toFormat(row.binding) ?? 'Paperback') : list === 'readLog' ? (toFormat(row.binding) ?? 'Ebook') : 'Paperback',
     coverUrl,
     originalCoverUrl: coverUrl,
-    status: owned && opts.status ? statusOf(row.exclusiveShelf) : 'none',
+    status: tracksReading && opts.status ? statusOf(row.exclusiveShelf) : 'none',
     rating: opts.rating ? row.rating : undefined,
     reads: opts.dateRead && row.dateRead ? [newRead({ finished: row.dateRead })] : [],
     notes: opts.notes && notes ? notes : undefined,

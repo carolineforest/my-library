@@ -1,7 +1,7 @@
 // A single book's page: big cover, details, and actions.
 import { useState } from 'react';
 import { useBook, useBookLoans, useOwnedMatches } from '../../data/hooks';
-import { deleteBook } from '../../data/repository';
+import { deleteBook, markBought } from '../../data/repository';
 import { Cover } from '../../components/Cover';
 import { Icon } from '../../components/Icon';
 import { Sheet } from '../../components/Sheet';
@@ -16,7 +16,7 @@ import { LendSheet, ReturnSheet } from '../loans/LendSheet';
 import { LoanHistory } from '../loans/LoanHistory';
 import { ToBuyActions } from '../toBuy/ToBuyActions';
 import { BoughtSheet } from '../toBuy/BoughtSheet';
-import { READING_STATUS_LABELS } from '../../data/models';
+import { LIST_HOME, READING_STATUS_LABELS } from '../../data/models';
 import { StarsSmall } from '../../components/Stars';
 import './book.css';
 
@@ -28,7 +28,8 @@ export function BookDetailScreen({ id }: { id?: string }) {
   const [justBought, setJustBought] = useState(false);
   const loans = useBookLoans(id);
   const activeLoan = loans?.find((l) => !l.returnedDate);
-  const ownedMatches = useOwnedMatches(book?.list === 'toBuy' ? book : null);
+  // On To Buy / Reading Log books, point out if I already own a physical copy.
+  const ownedMatches = useOwnedMatches(book && book.list !== 'owned' ? book : null);
 
   if (book === undefined) return <div className="page" />;
   if (book === null)
@@ -46,7 +47,8 @@ export function BookDetailScreen({ id }: { id?: string }) {
       </div>
     );
 
-  const backTo = book.list === 'toBuy' ? '/tobuy' : '/library';
+  const backTo = LIST_HOME[book.list];
+  const tracksReading = book.list === 'owned' || book.list === 'readLog';
 
   return (
     <div className="page book-page">
@@ -69,8 +71,9 @@ export function BookDetailScreen({ id }: { id?: string }) {
           {book.authors.length > 0 && <p className="book-authors">{joinAuthors(book.authors)}</p>}
           <div className="row-wrap">
             {book.list === 'toBuy' && <span className="badge badge-accent">To Buy</span>}
-            {book.list === 'toBuy' && <span className="badge">{book.format}</span>}
-            {book.list === 'owned' && book.status !== 'none' && (
+            {book.list === 'readLog' && <span className="badge badge-accent">Reading Log</span>}
+            {book.list !== 'owned' && <span className="badge">{book.format}</span>}
+            {tracksReading && book.status !== 'none' && (
               <span className="badge">{READING_STATUS_LABELS[book.status]}</span>
             )}
           </div>
@@ -100,6 +103,25 @@ export function BookDetailScreen({ id }: { id?: string }) {
       )}
 
       {book.list === 'toBuy' && <ToBuyActions book={book} onChangeCover={() => setChangingCover(true)} onBought={() => setJustBought(true)} />}
+
+      {book.list === 'readLog' && (
+        <div className="book-actions section">
+          <button
+            type="button"
+            className="btn"
+            onClick={async () => {
+              // Bought a physical copy: move it into My Library, keeping its reading history.
+              await markBought(book.id, { format: 'Paperback' });
+              setJustBought(true);
+            }}
+          >
+            <Icon name="library" /> I Own a Copy Now
+          </button>
+          <button type="button" className="btn" onClick={() => setChangingCover(true)}>
+            <Icon name="image" /> Change Cover
+          </button>
+        </div>
+      )}
 
       {book.list === 'owned' && (
         <div className="book-actions section">
@@ -138,7 +160,7 @@ export function BookDetailScreen({ id }: { id?: string }) {
         </section>
       )}
 
-      {book.list === 'owned' && <ReadingSection book={book} />}
+      {tracksReading && <ReadingSection book={book} />}
 
       {book.description && (
         <section className="section">
